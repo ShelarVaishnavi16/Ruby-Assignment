@@ -89,7 +89,7 @@ loop do
   when '6'
     puts "\nAll Orders:"
     orders.all.each do |order|
-      puts "Product ID: #{order['product_id']} | Customer: #{order['customer_name']}"
+      puts "Product ID: #{order.product_id} | Customer: #{order.customer_name}"
     end
 
   when '7'

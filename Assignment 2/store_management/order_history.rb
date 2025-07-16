@@ -9,7 +9,9 @@ class OrderHistory
   end
 
   def all
-    CSV.read(FILE_PATH, headers: true).map(&:to_h)
+    CSV.read(FILE_PATH, headers: true).map do |row|
+        Order.new(*row.fields)
+    end
   end
 
   def record(order)
