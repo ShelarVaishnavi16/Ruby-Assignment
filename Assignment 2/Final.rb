@@ -15,16 +15,65 @@ loop do
   puts "5. Place Order"
   puts "6. View Orders"
   puts "7. Exit"
-  print "Choose an option: "
-  choice = gets.chomp
+  
+  choice = nil
+  loop do
+    print "Choose an option (1-7): "
+    choice = gets.chomp
+    if choice.match?(/^[1-7]$/)
+      break
+    else
+      puts "Invalid choice. Please enter a number between 1 and 7."
+    end
+  end
 
   case choice
   when '1'
-    print "Enter ID: "; id = gets.chomp
-    print "Enter Name: "; name = gets.chomp
-    print "Enter Price: "; price = gets.chomp
-    print "Enter Stock Quantity: "; stock = gets.chomp
-    print "Enter Manufacturer: "; company = gets.chomp
+    loop do
+      print "Enter ID: "; id = gets.chomp
+      if id.match?(/^[A-Za-z0-9]{1,10}$/)
+        break
+      else
+        puts "Invalid ID. Must be 1-10 alphanumeric characters only."
+      end
+    end
+
+    loop do
+      print "Enter Name: "; name = gets.chomp
+      if name.match?(/^[A-Za-z0-9\s\-\.]{2,50}$/) && !name.strip.empty?
+        break
+      else
+        puts "Invalid name. Must be 2-50 characters, letters, numbers, spaces, hyphens, and dots only."
+      end
+    end
+
+    loop do
+      print "Enter Price: "; price = gets.chomp
+      if price.match?(/^\d+(\.\d{1,2})?$/) && price.to_f > 0
+        break
+      else
+        puts "Invalid price. Must be a positive number (e.g., 10.99)."
+      end
+    end
+
+    loop do
+      print "Enter Stock Quantity: "; stock = gets.chomp
+      if stock.match?(/^\d+$/) && stock.to_i > 0
+        break
+      else
+        puts "Invalid stock quantity. Must be a positive integer."
+      end
+    end
+
+    loop do
+      print "Enter Manufacturer: "; company = gets.chomp
+      if company.match?(/^[A-Za-z0-9\s\-\.&]{2,30}$/) && !company.strip.empty?
+        break
+      else
+        puts "Invalid manufacturer. Must be 2-30 characters, letters, numbers, spaces, hyphens, dots, and & only."
+      end
+    end
+
     inventory.create(Product.new(id, name, price, stock, company))
     puts "Product added."
 
@@ -35,13 +84,53 @@ loop do
     end
 
   when '3'
-    print "Enter ID to update: "; id = gets.chomp
-    product = inventory.find(id)
+    loop do
+      print "Enter ID to update: "; id = gets.chomp
+      if id.match?(/^[A-Za-z0-9]{1,10}$/)
+        break
+      else
+        puts "Invalid ID format. Must be 1-10 alphanumeric characters only."
+      end
+    end
+
+    product = inventory.find_product(id)
     if product
-      print "Enter New Name: "; name = gets.chomp
-      print "Enter New Price: "; price = gets.chomp
-      print "Enter New Stock: "; stock = gets.chomp
-      print "Enter New Manufacturer: "; company = gets.chomp
+      loop do
+        print "Enter New Name: "; name = gets.chomp
+        if name.match?(/^[A-Za-z0-9\s\-\.]{2,50}$/) && !name.strip.empty?
+          break
+        else
+          puts "Invalid name. Must be 2-50 characters, letters, numbers, spaces, hyphens, and dots only."
+        end
+      end
+
+      loop do
+        print "Enter New Price: "; price = gets.chomp
+        if price.match?(/^\d+(\.\d{1,2})?$/) && price.to_f > 0
+          break
+        else
+          puts "Invalid price. Must be a positive number (e.g., 10.99)."
+        end
+      end
+
+      loop do
+        print "Enter New Stock: "; stock = gets.chomp
+        if stock.match?(/^\d+$/) && stock.to_i >= 0
+          break
+        else
+          puts "Invalid stock quantity. Must be a non-negative integer."
+        end
+      end
+
+      loop do
+        print "Enter New Manufacturer: "; company = gets.chomp
+        if company.match?(/^[A-Za-z0-9\s\-\.&]{2,30}$/) && !company.strip.empty?
+          break
+        else
+          puts "Invalid manufacturer. Must be 2-30 characters, letters, numbers, spaces, hyphens, dots, and & only."
+        end
+      end
+
       inventory.update(Product.new(id, name, price, stock, company))
       puts "Product updated."
     else
@@ -49,19 +138,45 @@ loop do
     end
 
   when '4'
-    print "Enter ID to delete: "; id = gets.chomp
+    loop do
+      print "Enter ID to delete: "; id = gets.chomp
+      if id.match?(/^[A-Za-z0-9]{1,10}$/)
+        break
+      else
+        puts "Invalid ID format. Must be 1-10 alphanumeric characters only."
+      end
+    end
+    
     inventory.delete(id)
     puts "Product deleted."
 
   when '5'
-    print "Enter Product ID to order: "; pid = gets.chomp
-    product = inventory.find(pid)
+    pid = nil
+    loop do
+      print "Enter Product ID to order: "; pid = gets.chomp
+      if pid.match?(/^[A-Za-z0-9]{1,10}$/)
+        break
+      else
+        puts "Invalid ID format. Must be 1-10 alphanumeric characters only."
+      end
+    end
+
+    product = inventory.find_product(pid)
     if product.nil?
       puts "Product not found."
       next
     end
 
-    print "Enter Your Name: "; cname = gets.chomp
+    cname = nil
+    loop do
+      print "Enter Your Name: "; cname = gets.chomp
+      if cname.match?(/^[A-Za-z\s\-\.]{2,50}$/) && !cname.strip.empty?
+        break
+      else
+        puts "Invalid name. Must be 2-50 characters, letters, spaces, hyphens, and dots only."
+      end
+    end
+
     cc = ''
     loop do
       print "Enter Credit Card Number: "; cc = gets.chomp
@@ -72,11 +187,18 @@ loop do
       end
     end
 
-     print "Enter Quantity: "; qty = gets.chomp.to_i
-    if qty <= 0
-      puts "Invalid quantity."
-      next
-    elsif product.stock_quantity.to_i < qty
+    qty = nil
+    loop do
+      print "Enter Quantity: "; qty_input = gets.chomp
+      if qty_input.match?(/^\d+$/) && qty_input.to_i > 0
+        qty = qty_input.to_i
+        break
+      else
+        puts "Invalid quantity. Must be a positive integer."
+      end
+    end
+
+    if product.stock_quantity.to_i < qty
       puts "Only #{product.stock_quantity} in stock. Cannot order #{qty}."
       next
     end
@@ -95,8 +217,5 @@ loop do
   when '7'
     puts "Exiting..."
     break
-
-  else
-    puts "Invalid option."
   end
 end

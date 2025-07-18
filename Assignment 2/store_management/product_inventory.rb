@@ -14,7 +14,7 @@ class ProductInventory
     end
   end
 
-  def find(id)
+  def find_product(id)
     all.find { |product| product.id == id.to_s }
   end
 
